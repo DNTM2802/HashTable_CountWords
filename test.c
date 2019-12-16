@@ -24,6 +24,15 @@ typedef struct word{
 }
 word_t;
 
+typedef struct hash_table{
+    unsigned int size;
+    unsigned int count;
+    word_t *table;
+}
+hash_table_t;
+
+typedef struct hash_node_t 
+
 int open_text_file(char *file_name,file_data_t *fd){
     fd->fp = fopen(file_name,"rb");
     if(fd->fp == NULL)

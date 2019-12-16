@@ -27,11 +27,10 @@ word_t;
 typedef struct hash_table{
     unsigned int size;
     unsigned int count;
-    word_t *table;
+    word_t *table[2000];
 }
 hash_table_t;
 
-typedef struct hash_node_t 
 
 int open_text_file(char *file_name,file_data_t *fd){
     fd->fp = fopen(file_name,"rb");
@@ -90,12 +89,15 @@ hash(unsigned char *str)
 }
 
 void main(){
-    word_t hashhtable[100];
+    word_t hashtable[100];
     file_data_t *fl;
+    hash_table_t *hash_table;
 
     if(open_text_file("Teste.txt",fl)==-1){
         return EXIT_FAILURE;
     }
+
+
 
     
 

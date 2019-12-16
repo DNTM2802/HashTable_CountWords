@@ -32,11 +32,7 @@ typedef struct hash_table{
     word_t *table[2000];
 }
 hash_table_t;
-<<<<<<< HEAD
  
-=======
-
->>>>>>> master
 
 int open_text_file(char *file_name,file_data_t *fd){
     fd->fp = fopen(file_name,"rb");
@@ -95,24 +91,16 @@ hash(unsigned char *str)
 }
 
 void main(){
-<<<<<<< HEAD
     file_data_t *fl;
     hash_table_t *hash_table;
     int hashcode;
     word_t word;
     word_t *head;
     bool is_in_hash;
-=======
-    word_t hashtable[100];
-    file_data_t *fl;
-    hash_table_t *hash_table;
-
->>>>>>> master
     if(open_text_file("Teste.txt",fl)==-1){
         return EXIT_FAILURE;
     }
 
-<<<<<<< HEAD
     while(read_word(fl) != -1){
         hashcode=hash(fl->word) % hash_table->size;
         head=hash_table->table[hashcode];
@@ -147,9 +135,6 @@ void main(){
         }
         
     }
-=======
-
->>>>>>> master
 
     
 

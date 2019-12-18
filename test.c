@@ -39,7 +39,7 @@ hash_table_t;
 int open_text_file(char *file_name, file_data_t *fd){
     fd->fp = fopen(file_name,"r");  // ---->>> Erro é aqui
     if(fd->fp == NULL)
-         return -1;https://stackoverflow.com/questions/1345670/stack-smashing-detected
+         return -1;
     fd->word_pos = -1;
     fd->word_num = -1;;
     fd->word[0] ='\0';
@@ -122,11 +122,10 @@ int main(int argc, char* argv[]){
         head1=(word_t* ) malloc(sizeof(word_t));
         head1->next=NULL;
         hash_table->table[i]=head1;
-     }
-     printf("%s",hash_table->table[20]->next);            
+        printf("%d\n",i);
+     }            
       while(read_word(fl) != -1){
-        printf("%s",fl->word);
-        printf("ola\n");
+        printf("%s\n",fl->word);
         hashcode=hash(fl->word) % hash_table->size;  // O ERRO É AQUI CARALHO
         head=hash_table->table[hashcode];
 

@@ -37,6 +37,7 @@ hash_table_t;
  
 
 int open_text_file(char *file_name, file_data_t *fd){
+    printf("ola\n");
     fd->fp = fopen(file_name,"r");  // ---->>> Erro é aqui
     if(fd->fp == NULL)
          return -1;
@@ -50,10 +51,10 @@ int open_text_file(char *file_name, file_data_t *fd){
 void close_text_file(file_data_t *fd){
     fclose(fd->fp);
     fd->fp = NULL;
-
-
 }
+
 int read_word(file_data_t *fd){
+    printf("ola\n");
     int i,c;
     // skip white spaces
     do{
@@ -65,14 +66,9 @@ int read_word(file_data_t *fd){
         }
     while(c <= 32);
     //record word
-    // printf("ola\n");
-    // printf("%d",fd->current_pos);
-    
     fd->word_pos = fd->current_pos;
     fd->word_num++;
     fd->word[0] = (char)c;
-    // printf("%d",fd->word[0]);
-    // printf("ola\n");
     for(i = 1;i < (int)sizeof(fd->word) - 1;i++){
         c = fgetc(fd->fp);
         if(c == EOF)break; 
@@ -84,8 +80,6 @@ int read_word(file_data_t *fd){
         fd->word[i] = (char)c;
     }
     fd->word[i] ='\0';
-    // printf("%s",fd->word);
-    // printf("ola\n");
     return 0;
 }
 

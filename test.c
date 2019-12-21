@@ -37,7 +37,6 @@ hash_table_t;
  
 
 int open_text_file(char *file_name, file_data_t *fd){
-    printf("ola\n");
     fd->fp = fopen(file_name,"r");  // ---->>> Erro é aqui
     if(fd->fp == NULL)
          return -1;
@@ -54,7 +53,6 @@ void close_text_file(file_data_t *fd){
 }
 
 int read_word(file_data_t *fd){
-    printf("ola\n");
     int i,c;
     // skip white spaces
     do{
@@ -116,15 +114,13 @@ int main(int argc, char* argv[]){
         head1=(word_t* ) malloc(sizeof(word_t));
         head1->next=NULL;
         hash_table->table[i]=head1;
-        printf("%d\n",i);
      }            
       while(read_word(fl) != -1){
-        printf("%s\n",fl->word);
         hashcode=hash(fl->word) % hash_table->size;  // O ERRO É AQUI CARALHO
+        printf("%d\n", hashcode);
         head=hash_table->table[hashcode];
 
           while(head->next != NULL){
-              printf("%d", hashcode);
               if (strcmp(head->next->word,fl->word)==0){
                   is_in_hash=1;
                   int temp=head->next->last_location;

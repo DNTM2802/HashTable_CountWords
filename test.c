@@ -18,6 +18,7 @@ file_data_t;
 typedef struct word{
     struct word* next;
     char word[64];
+    int hash;
     int first_location;
     int last_location;
     int max_dist;
@@ -95,17 +96,17 @@ hash(unsigned char *str)
 
 int main(int argc, char* argv[]){
      
-     file_data_t *fl;
-     fl=(file_data_t*) malloc(sizeof(file_data_t));
+    file_data_t *fl;
+    fl=(file_data_t*) malloc(sizeof(file_data_t));
 
-     if(open_text_file("Teste.txt", fl)==-1){
-          return EXIT_FAILURE;
-     }
+    if(open_text_file("Teste.txt", fl)==-1){
+        return EXIT_FAILURE;
+    }
 
     // HASHTABLE INITIALIZATION
     hash_table_t *hash_table;
     hash_table=(hash_table_t* ) malloc(sizeof(hash_table_t));
-    word_t *ptr=malloc(2000*sizeof(word_t));
+    word_t **ptr=malloc(2000*sizeof(word_t *));
     hash_table->table=ptr;
     hash_table->size=2000;
     hash_table->count=0;
@@ -123,57 +124,62 @@ int main(int argc, char* argv[]){
      int hashcode;
      int word_counter;
      while(read_word(fl) != -1){
-        // DYNAMIC RESIZE 
-        // if (hash_table->count >= hash_table->size/2){
-        //     struct word_t **table, *curr, *next;
-        //     size_t        i, k;
+        //DYNAMIC RESIZE 
+        if (hash_table->count >= hash_table->size/2){
+            word_t **table, *curr, *next;
+            size_t        i, k;
+            next =(word_t *) malloc(sizeof(word_t));
+            curr =(word_t *) malloc(sizeof(word_t));
+            int new_size = hash_table->size*2;
+            table = malloc(new_size * sizeof (word_t *));
+            if (!table)
+                return -1; /* Out of memory */
 
-        //     int new_size = hash_table->size*2;
-        //     table = malloc(new_size * sizeof table[0]);
-        //     if (!table)
-        //         return -1; /* Out of memory */
+            /* Initialize new entry array to empty. */
+            for (i = 0; i < new_size; i++){
+                word_t *head2;
+                head2=(word_t* ) malloc(sizeof(word_t));
+                head2->next=NULL;
+                table[i]=head2;
+            }
+            for (i = 0; i < hash_table->size; i++) {
+                /* Detach the singly-linked list. */
+                next = hash_table->table[i];
+                hash_table->table[i] = NULL;
+            
 
-        //     /* Initialize new entry array to empty. */
-        //     for (i = 0; i < new_size; i++)
-        //         table[i] = NULL;
+               
+                    /* Detach the next element, as 'curr' */
+                    curr = next;
 
-        //     for (i = 0; i < hash_table->size; i++) {
+                    /* k is the index to this hash in the new array */
+                    k = curr->hash % new_size;
 
-        //     /* Detach the singly-linked list. */
-        //     next = hash_table->table[i];
-        //     hash_table->table[i] = NULL;
-
-        //     while (next) {
-        //         /* Detach the next element, as 'curr' */
-        //         curr = next;
-        //         next = next->next;
-
-        //         /* k is the index to this hash in the new array */
-        //         k = curr->hash % new_size;
-
-        //         /* Prepend to the list in the new array */
-        //         curr->next = table[k];
-        //         table[k] = curr;
-        //     }   
-        
-        //     /* Old array is no longer needed, */
-        //     free(hash_table->table);
-
-        //     /* so replace it with the new one. */
-        //     hash_table->table = table;
-        //     hash_table->size = new_size;
+                    /* Prepend to the list in the new array */
+                    //curr->next = table[k];
+                    table[k] = curr;
+                    
+            }
+            free(next);
+            free(curr);
+            /* Old array is no longer needed, */
+            //free(hash_table->table);
+            /* so replace it with the new one. */
+            hash_table->table = table;
+            hash_table->size = new_size;
+            printf("Dei resize\n");
               
-        // }
+        }
 
         word_counter++;
         hashcode=hash(fl->word) % hash_table->size;
-        printf("%d\n", hashcode);
         head=hash_table->table[hashcode];
         if (head->next == NULL){
               word_t *new;
               new=(word_t* ) malloc(sizeof(word_t));
               head->next = new;
               new->next=NULL;
+              new->hash=hash(fl->word);
               new->first_location=fl->current_pos;
               new->last_location=fl->current_pos;
               new->max_dist=0;
@@ -181,7 +187,6 @@ int main(int argc, char* argv[]){
               new->medium_dist=0;
               new->count=1;
               hash_table->count+=1;
-              printf("Entrei aqui");
         } else {
           while(head->next != NULL){
               if (strcmp(head->next->word,fl->word)==0){
@@ -200,13 +205,14 @@ int main(int argc, char* argv[]){
               }
               head=head->next;
          }
+         
         }
         
       }
      printf("Words read: %d\n", word_counter);
      printf("Hash elements count: %d\n", hash_table->count);
+     printf("Hash elements size: %d\n", hash_table->size);
 
     return 0;
 
 }
-

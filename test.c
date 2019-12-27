@@ -145,6 +145,7 @@ main (int argc, char *argv[])
 	{
 	  word_t **table, *curr, *next;
 	  size_t i, k;
+    int word_counter1 = 0;
 	  next = (word_t *) malloc (sizeof (word_t));
 	  curr = (word_t *) malloc (sizeof (word_t));
 	  int new_size = hash_table->size * 2;
@@ -165,6 +166,7 @@ main (int argc, char *argv[])
 
 	      while (next)
 		{
+      word_counter1++;
 		  /* Detach the next element, as 'curr' */
 		  curr = next;
 		  next = next->next;
@@ -184,7 +186,7 @@ main (int argc, char *argv[])
 	  /* so replace it with the new one. */
 	  hash_table->table = table;
 	  hash_table->size = new_size;
-	  printf ("Dei resize\n");
+	  printf ("Number of words after resize: %d\n", word_counter1);
 
 	}
 
@@ -201,7 +203,7 @@ main (int argc, char *argv[])
 	  new->first_location = fl->current_pos;
 	  new->last_location = fl->current_pos;
 	  new->max_dist = 0;
-	  new->min_dist = 999999999;
+	  new->min_dist = 9999999999;
 	  new->medium_dist = 0;
 	  new->count = 1;
 	  strcpy (new->word, fl->word);
@@ -222,13 +224,13 @@ main (int argc, char *argv[])
 		        if (dist > head->max_dist)
 		        {
 		            head->max_dist = dist;
-                }
-                if (dist < head->min_dist)
+            }
+            if (dist < head->min_dist)
 		        {
 		            head->min_dist = dist;
 		        }	      
-                head->medium_dist = head->medium_dist + (dist - head->medium_dist) / head->count;
-                head->count++;
+            head->medium_dist = head->medium_dist + (dist - head->medium_dist) / head->count;
+            head->count++;
 		        break;		
 		    }
 	    prev = head;
@@ -244,7 +246,7 @@ main (int argc, char *argv[])
 	      new->first_location = fl->current_pos;
 	      new->last_location = fl->current_pos;
 	      new->max_dist = 0;
-	      new->min_dist = 999999999;
+	      new->min_dist = 9999999999;
 	      new->medium_dist = 0;
 	      new->count = 1;
 	      strcpy (new->word, fl->word);
@@ -256,25 +258,23 @@ main (int argc, char *argv[])
 
     }
 
-  word_t *word;
-  for (int k = 0; k < hash_table->size; k++){
-      printf("==================\n");
-      if (hash_table->table[k] == NULL)
-	{
-	  printf ("NULL\n");
-	}
-      else
-	{
-	  word = hash_table->table[k];
-	  while (word->next != NULL)
-	    {
-	      printf ("%s (Hash: %d First Loc: %d Max Dist: %d Min Dist: %d Medium Dist: %d Count: %d) \n ", word->word,word->hash,word->first_location,word->max_dist,word->min_dist,word->medium_dist,word->count);
-	      word = word->next;
-	    }
-	  printf ("%s (Hash: %d First Loc: %d Max Dist: %d Min Dist: %d Medium Dist: %d Count: %d) \n ", word->word,word->hash,word->first_location,word->max_dist,word->min_dist,word->medium_dist,word->count);
-	}
-    printf("==================\n");
-    }
+  // word_t *word;
+  // for (int k = 0; k < hash_table->size; k++){
+  //     if (hash_table->table[k] == NULL)
+	//     {
+	//       printf ("NULL\n");
+	//     }
+  //     else
+	//     {
+	//       word = hash_table->table[k];
+	//       while (word->next != NULL)
+	//       {
+	//         printf ("%s (%d, %d, %d, %d, %d, %d) --> ", word->word,word->hash,word->first_location,word->max_dist,word->min_dist,word->medium_dist,word->count);
+	//         word = word->next;
+	//       }
+	//       printf ("%s (%d, %d, %d, %d, %d, %d) --> ", word->word,word->hash,word->first_location,word->max_dist,word->min_dist,word->medium_dist,word->count);
+	//     }
+  // }
   printf ("Words read: %d\n", word_counter);
   printf ("Hash elements count: %d\n", hash_table->count);
   printf ("Hash elements size: %d\n", hash_table->size);

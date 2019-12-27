@@ -110,7 +110,6 @@ hash (unsigned char *str)
 int
 main (int argc, char *argv[])
 {
-
   file_data_t *fl;
   fl = (file_data_t *) malloc (sizeof (file_data_t));
 

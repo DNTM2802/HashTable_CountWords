@@ -163,57 +163,12 @@ main (int argc, char *argv[])
   // HEAD DECLARATION TO USE INSIDE WHILE CYCLE
   word_t *head;
   head = (word_t *) malloc (sizeof (word_t));
-
+  long int counterrr;
   int hashcode;
   int word_counter;
   while (read_word (fl) != -1)
     {
-      //DYNAMIC RESIZE 
-      if (hash_table->count >= hash_table->size / 2)
-	{
-	  word_t **table, *curr, *next;
-	  size_t i, k;
-	  next = (word_t *) malloc (sizeof (word_t));
-	  curr = (word_t *) malloc (sizeof (word_t));
-	  int new_size = hash_table->size * 2;
-	  table = malloc (new_size * sizeof (word_t *));
-	  if (!table)
-	    return -1;		/* Out of memory */
-
-	  /* Initialize new entry array to empty. */
-	  for (i = 0; i < new_size; i++)
-	    {
-	      table[i] = NULL;
-	    }
-	  for (i = 0; i < hash_table->size; i++)
-	    {
-	      /* Detach the singly-linked list. */
-
-	      next = hash_table->table[i];
-
-	      while (next){
-		    /* Detach the next element, as 'curr' */
-		    curr = next;
-		    next = next->left;
-
-		    /* k is the index to this hash in the new array */
-		    k = curr->hash % new_size;
-
-		    /* Prepend to the list in the new array */
-		    curr->left = hash_table->table[k];
-		    hash_table->table[k] = curr;
-		  }
-	    }
-	  free (next);
-	  free (curr);
-	  /* Old array is no longer needed, */
-	  //free(hash_table->table);
-	  /* so replace it with the new one. */
-	  hash_table->table = table;
-	  hash_table->size = new_size;
-	  printf ("Dei resize\n");
-
-	}
+      
       word_counter++;
       hashcode = hash (fl->word) % hash_table->size;
       head = hash_table->table[hashcode];
@@ -233,11 +188,13 @@ main (int argc, char *argv[])
       hash_table->table[hashcode] = new;
       new->hash = hashcode;
       hash_table->count += 1;
+      counterrr++;
 	  }
     else{        
     word_t *this_one;
     this_one=search_recursive(head,fl->word);
 	  if (this_one != NULL){
+      counterrr++;
 		        int temp = this_one->last_location;
 		        int dist = fl->current_pos - temp;
 		        this_one->last_location = fl->current_pos;
@@ -266,6 +223,7 @@ main (int argc, char *argv[])
 	      strcpy (new->word, fl->word);
 	      new->hash = hashcode;
 	      insert_non_recursive(&head,&new,new->word);
+        
 	      //printf ("Adicionada ao fim: %s\n", new->word);
 	    }
 	}
@@ -289,7 +247,7 @@ main (int argc, char *argv[])
   printf ("Words read: %d\n", word_counter);
   printf ("Hash elements count: %d\n", hash_table->count);
   printf ("Hash elements size: %d\n", hash_table->size);
-
+printf("Number of words inside hash table: %ld\n", counterrr);
   return 0;
 
 }

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <assert.h>
 
 typedef struct file_data {
     // public data
@@ -118,7 +119,10 @@ int main(int argc, char* argv[])
 
     int hashcode=0;
     int word_counter=0;
+
     while (read_word(fl) != -1) {
+
+        
         
         //DYNAMIC RESIZE
         if (hash_table->count >= hash_table->size / 2) {
@@ -167,9 +171,8 @@ int main(int argc, char* argv[])
             hash_table->table = table;
             hash_table->size = new_size;
         }
-
-        int flag = 0; //IF A WORD IS FOUND, THEN WE DONT NEED TO CREATE IT
         word_counter++;
+        int flag = 0; //IF A WORD IS FOUND, THEN WE DONT NEED TO CREATE IT
         hashcode = hash(fl->word) % hash_table->size;
         head = hash_table->table[hashcode];
         if (head == NULL) { // IF THERES NOTHING IN TABLE[HASHCODE], CREATE A NEW WORD THERE
@@ -253,5 +256,86 @@ int main(int argc, char* argv[])
     printf("Hash table size: %d\n", hash_table->size);
     printf("Words inside table: %d\n", new_words);
 
+
+
+    // SEARCH TEST //
+
+    file_data_t* ft;
+    ft = (file_data_t*)malloc(sizeof(file_data_t));
+    word_t* head_test;
+    head_test = (word_t*)malloc(sizeof(word_t));
+    if (open_text_file("Teste.txt", ft) == -1) {
+        return EXIT_FAILURE;
+    }
+
+    while (read_word(ft) != -1) {
+        int hashcode_test=0;
+        int flag_search = 0;
+
+        hashcode_test = hash(fl->word) % hash_table->size;
+        head_test = hash_table->table[hashcode];
+        while (head_test) {
+           if (strcmp(head_test->word, fl->word) == 0){
+               flag_search = 1;
+           }
+           head_test = head_test->next;
+        }
+
+        assert(flag_search);
+
+    }
+
+    // WORDS INSIDE TABLE TEST //
+
+    int test_counter=0;
+    word_t* head_test_2;
+    head_test_2 = (word_t*)malloc(sizeof(word_t));
+
+    for (int k = 0; k < hash_table->size; k++){
+        head_test_2 = hash_table->table[k];
+        while (head_test_2) {
+           test_counter++;
+           head_test_2 = head_test_2->next;
+        }
+    }
+
+    assert(new_words == test_counter);
+
+    // TOP 10 MORE FREQUENT WORDS //
+    char a[10][64];
+    int max_test = 0;
+    word_t* head_test_3;
+    char word_test[64];
+    head_test_3 = (word_t*)malloc(sizeof(word_t));
+    for (int j = 0; j < 10; j++){
+        for (int k = 0; k < hash_table->size; k++){
+            head_test_3 = hash_table->table[k];
+            while (head_test_3) {
+                if (head_test_3->count > max_test){
+                    int flagg = 0;
+                    for (int l = 0; l < j; l++){
+                        if (strcmp(a[l],head_test_3->word) == 0){
+                            flagg = 1;
+                            break;
+                        }
+                    }
+                    if (flagg){
+                        max_test = head_test_3->count;
+                        memset(word_test, 0, 64);
+                        strcpy(word_test, head_test_3->word);
+                        strcat(word_test, '\0');
+                    }
+                }
+                head_test_3 = head_test_3->next;
+            }
+        }
+        // a[j][64] ='\0';
+        // strcpy(a[j], word_test);
+        printf("%s\n", word_test);
+    }
+    // for (int k = 0; k < 10; k++){
+    //     printf("%s\n", a[k]);
+    // }
     return 0;
+
 }

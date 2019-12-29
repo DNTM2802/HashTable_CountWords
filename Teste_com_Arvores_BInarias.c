@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <assert.h>
 
 typedef struct file_data
 {
@@ -107,15 +108,41 @@ hash (unsigned char *str)
 
   return hash;
 }
+void print2DUtil(word_t *root, int space) 
+{ 
+    // Base case 
+    if (root == NULL){
+        printf("\n"); 
+        for (int i = 10; i < space+10; i++) 
+          printf(" "); 
+        printf("%15s\n",NULL);
+        return; 
+    }
+    // Increase distance between levels 
+    space += 10; 
+  
+    // Process right child first 
+    print2DUtil(root->right, space); 
+  
+    // Print current node after space 
+    // count 
+    printf("\n"); 
+    for (int i = 10; i < space; i++) 
+        printf(" "); 
+    printf("%15s\n", root->word); 
+  
+    // Process left child 
+    print2DUtil(root->left, space); 
+} 
 
 void visit(word_t *word){
-  printf ("%s (Hash: %d First Loc: %d Max Dist: %d Min Dist: %d Medium Dist: %d Count: %d)\n ", word->word,word->hash,word->first_location,word->max_dist,word->min_dist,word->medium_dist,word->count);
+  printf ("%s (Hash: %lu First Loc: %d Max Dist: %d Min Dist: %d Medium Dist: %d Count: %d)\n ", word->word,word->hash,word->first_location,word->max_dist,word->min_dist,word->medium_dist,word->count);
   }
 
 word_t *search_recursive(word_t *link,char *data){
   if(link == NULL || strcmp(link->word,data)==0)
     return link;
-  if(strcmp(link->word,data)<0)
+  if(strcmp(link->word,data)>0)
     return search_recursive(link->left,data);
   else
     return search_recursive(link->right,data);
@@ -125,7 +152,7 @@ void insert_non_recursive(word_t **link, word_t **insert,char *data){
   word_t *parent = NULL;
   while(*link != NULL){
     parent = *link;
-    link = (strcmp((*link)->word,data)<0) ? &((*link)->left) : &((*link)->right); 
+    link = (strcmp((*link)->word,data)>0) ? &((*link)->left) : &((*link)->right); 
     }
     *link = *insert;
   }
@@ -133,7 +160,9 @@ void insert_non_recursive(word_t **link, word_t **insert,char *data){
 void traverse_in_order_recursive(word_t *link){
   if(link != NULL){
     traverse_in_order_recursive(link->left);
-    visit(link);
+    printf("---------------------------\n");
+    print2DUtil(link,0);
+    printf("---------------------------\n");
     traverse_in_order_recursive(link->right);
     }
   }
@@ -163,7 +192,7 @@ main (int argc, char *argv[])
   // HEAD DECLARATION TO USE INSIDE WHILE CYCLE
   word_t *head;
   head = (word_t *) malloc (sizeof (word_t));
-  long int counterrr;
+  int counterrr;
   int hashcode;
   int word_counter;
   while (read_word (fl) != -1)
@@ -180,13 +209,12 @@ main (int argc, char *argv[])
       new->hash = hash (fl->word);
       new->first_location = fl->current_pos;
       new->last_location = fl->current_pos;
-      new->max_dist = 0;
-      new->min_dist = 999999999;
+      new->max_dist = NULL;
+      new->min_dist = NULL;
       new->medium_dist = 0;
       new->count = 1;
       strcpy (new->word, fl->word);
       hash_table->table[hashcode] = new;
-      new->hash = hashcode;
       hash_table->count += 1;
       counterrr++;
 	  }
@@ -194,15 +222,15 @@ main (int argc, char *argv[])
     word_t *this_one;
     this_one=search_recursive(head,fl->word);
 	  if (this_one != NULL){
-      counterrr++;
+      
 		        int temp = this_one->last_location;
 		        int dist = fl->current_pos - temp;
 		        this_one->last_location = fl->current_pos;
-		        if (dist > this_one->max_dist)
+		        if (dist > this_one->max_dist || this_one->max_dist == NULL)
 		        {
 		            this_one->max_dist = dist;
-                }
-                if (dist < this_one->min_dist)
+            }
+            if (dist < this_one->min_dist || this_one->min_dist == NULL)
 		        {
 		            this_one->min_dist = dist;
 		        }	      
@@ -216,15 +244,13 @@ main (int argc, char *argv[])
 	      new->hash = hash (fl->word);
 	      new->first_location = fl->current_pos;
 	      new->last_location = fl->current_pos;
-	      new->max_dist = 0;
-	      new->min_dist = 999999999;
+	      new->max_dist = NULL;
+	      new->min_dist = NULL;
 	      new->medium_dist = 0;
 	      new->count = 1;
 	      strcpy (new->word, fl->word);
-	      new->hash = hashcode;
 	      insert_non_recursive(&head,&new,new->word);
-        
-	      //printf ("Adicionada ao fim: %s\n", new->word);
+        counterrr++;
 	    }
 	}
 
@@ -244,10 +270,56 @@ main (int argc, char *argv[])
 	}
     printf("==================\n");
   }
+  
   printf ("Words read: %d\n", word_counter);
   printf ("Hash elements count: %d\n", hash_table->count);
   printf ("Hash elements size: %d\n", hash_table->size);
-printf("Number of words inside hash table: %ld\n", counterrr);
+  printf("Number of words inside hash table: %d\n", counterrr);
+
+    file_data_t* ft;
+    ft = (file_data_t*)malloc(sizeof(file_data_t));
+    word_t* head_test;
+    word_t* checker;
+    head_test = (word_t*)malloc(sizeof(word_t));
+    checker = (word_t*)malloc(sizeof(word_t));
+    if (open_text_file("Teste.txt", ft) == -1) {
+        return EXIT_FAILURE;
+    }
+    int count_words = 0;
+    int hashcode_test=0;
+    while (read_word(ft) != -1) {
+        hashcode_test=0;
+        int flag_test = 0;
+        
+        hashcode_test = hash(fl->word) % hash_table->size;
+        head_test = hash_table->table[hashcode_test];
+        checker=search_recursive(head_test,fl->word);
+        if (checker != NULL){
+          flag_test=1;
+          count_words=count_words+checker->count;
+        }
+        assert(flag_test);
+    }
+    //assert(count_words == word_counter);
+    printf("ola");
+    // int max_prev=9999;
+    // int max_in_cicle=0;
+    // char palavra[64]="word";
+    // for(int c=0;c<10;c++){
+    //   max_in_cicle=0;
+    //   for(int f=0;f<hash_table->size;f++){
+    //     head_test = hash_table->table[f];
+    //     checker=search_recursive(head_test,fl->word);
+    //     if(checker->count<max_prev){
+    //       if(checker->count>max_in_cicle){
+    //         strcpy(palavra,checker->word);
+    //         max_in_cicle=checker->count;
+    //       }
+    //     }
+    //   }
+    //   printf("%dº a palavra mais usada: %s\n",c+1,palavra);
+    //   max_prev=max_in_cicle;
+    // }
   return 0;
 
 }

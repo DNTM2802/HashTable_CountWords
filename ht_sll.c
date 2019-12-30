@@ -241,16 +241,17 @@ int main(int argc, char* argv[])
         else {
             word = hash_table->table[k];
             while (word->next != NULL) {
-                printf("%s (%ld, %d, %d, %d, %d , %d) --> ", word->word, word->hash, word->first_location, word->max_dist, word->min_dist, word->medium_dist, word->count);
+                printf("%s (FL: %d, LL: %d, MAXD: %d, MIND: %d, MEDD: %d, WC: %d) --> ", word->word, word->first_location, word->last_location, word->max_dist, word->min_dist, word->medium_dist, word->count);
                 word = word->next;
                 new_words++;
             }
-            printf("%s (%ld, %d, %d, %d, %d , %d) --> NULL\n", word->word, word->hash, word->first_location, word->max_dist, word->min_dist, word->medium_dist, word->count);
+            printf("%s (FL: %d, LL: %d, MAXD: %d, MIND: %d, MEDD: %d, WC: %d) --> NULL\n", word->word, word->first_location, word->last_location, word->max_dist, word->min_dist, word->medium_dist, word->count);
             new_words++;
         }
     }
 
     printf("===================================\n");
+    printf("TABLE STATS\n");
     printf("Words read: %d\n", word_counter);
     printf("Hash table count: %d\n", hash_table->count);
     printf("Hash table size: %d\n", hash_table->size);
@@ -258,7 +259,7 @@ int main(int argc, char* argv[])
 
 
 
-    // SEARCH TEST //
+    // SEARCH TEST // --> ASSERT THAT WORD IS IN HASHTABLE
 
     file_data_t* ft;
     ft = (file_data_t*)malloc(sizeof(file_data_t));
@@ -268,22 +269,47 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
+    int flag_search = 0;
     while (read_word(ft) != -1) {
         int hashcode_test=0;
-        int flag_search = 0;
-
         hashcode_test = hash(fl->word) % hash_table->size;
         head_test = hash_table->table[hashcode];
         while (head_test) {
            if (strcmp(head_test->word, fl->word) == 0){
-               flag_search = 1;
+               flag_search++;
            }
            head_test = head_test->next;
         }
 
-        assert(flag_search);
-
     }
+
+    // // SEARCH TEST // --> ASSERT THAT A WORD APPEARS ONCE AND ONLY ONCE IN THE HASH TABLE (COMMENTED BACAUSE TAKES TOO MUCH TIME)
+
+    // file_data_t* ft;
+    // ft = (file_data_t*)malloc(sizeof(file_data_t));
+    // word_t* head_test;
+    // head_test = (word_t*)malloc(sizeof(word_t));
+    // if (open_text_file("Teste.txt", ft) == -1) {
+    //     return EXIT_FAILURE;
+    // }
+
+    
+    // while (read_word(ft) != -1) {
+    //     int hashcode_test=0;
+    //     int flag_search = 0;
+
+    //     for (int k = 0; k < hash_table->size; k++){
+    //         head_test = hash_table->table[k];
+    //         while (head_test) {
+    //             if (strcmp(head_test->word, fl->word) == 0){
+    //                 flag_search++;
+    //             }
+    //         head_test = head_test->next;
+    //         }
+    //     }
+    //     assert(flag_search==1);
+    // }
+
 
     // WORDS INSIDE TABLE TEST //
 
@@ -302,20 +328,23 @@ int main(int argc, char* argv[])
     assert(new_words == test_counter);
 
     // TOP 10 MORE FREQUENT WORDS //
+
     char a[10][64];
     int max_test = 0;
     word_t* head_test_3;
     char word_test[64];
+    int maxs[10];
     head_test_3 = (word_t*)malloc(sizeof(word_t));
     for (int j = 0; j < 10; j++){
+        max_test = 0;
         for (int k = 0; k < hash_table->size; k++){
             head_test_3 = hash_table->table[k];
             while (head_test_3) {
                 if (head_test_3->count > max_test){
-                    int flagg = 0;
+                    int flagg = 1;
                     for (int l = 0; l < j; l++){
                         if (strcmp(a[l],head_test_3->word) == 0){
-                            flagg = 1;
+                            flagg = 0;
                             break;
                         }
                     }
@@ -323,19 +352,21 @@ int main(int argc, char* argv[])
                         max_test = head_test_3->count;
                         memset(word_test, 0, 64);
                         strcpy(word_test, head_test_3->word);
-                        strcat(word_test, '\0');
                     }
                 }
                 head_test_3 = head_test_3->next;
             }
         }
-        // a[j][64] ='\0';
-        // strcpy(a[j], word_test);
-        printf("%s\n", word_test);
+        
+        strcpy(a[j], word_test);
+        maxs[j] = max_test;
+        
     }
-    // for (int k = 0; k < 10; k++){
-    //     printf("%s\n", a[k]);
-    // }
+    printf("===================================\n");
+    printf("TOP 10 MOST FREQUENT WORDS\n");
+    for (int k = 0; k < 10; k++){
+        printf("%-5s (%d)\n", a[k], maxs[k]);
+    }
     return 0;
 
 }

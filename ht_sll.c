@@ -3,6 +3,7 @@
 #include <string.h>
 #include <math.h>
 #include <assert.h>
+#include <time.h>
 
 typedef struct file_data {
     // public data
@@ -36,8 +37,10 @@ typedef struct hash_table {
 int open_text_file(char* file_name, file_data_t* fd)
 {
     fd->fp = fopen(file_name, "r");
-    if (fd->fp == NULL)
+    if (fd->fp == NULL){
+        printf("File does not exist.\n");
         return -1;
+    }
     fd->word_pos = -1;
     fd->word_num = -1;
     ;
@@ -97,9 +100,12 @@ int main(int argc, char* argv[])
     file_data_t* fl;
     fl = (file_data_t*)malloc(sizeof(file_data_t));
 
-    if (open_text_file("Teste.txt", fl) == -1) {
+    if (open_text_file(argv[1], fl) == -1) {
         return EXIT_FAILURE;
     }
+    double time_spent_total = 0;
+
+    clock_t begin_total = clock();
 
     // HASHTABLE INITIALIZATION
     hash_table_t* hash_table = NULL;
@@ -119,14 +125,14 @@ int main(int argc, char* argv[])
 
     int hashcode=0;
     int word_counter=0;
+    int resize_counter=0;
+    double time_spent_resize = 0;
 
     while (read_word(fl) != -1) {
-
-        
         
         //DYNAMIC RESIZE
         if (hash_table->count >= hash_table->size / 2) {
-
+            clock_t begin_resize = clock();
             word_t **table, *curr, *next;
             size_t i, k;
             next = malloc(sizeof(word_t));
@@ -170,7 +176,11 @@ int main(int argc, char* argv[])
             // REPLACE THE OLD HASH TABLE WITH THE NEW ONE
             hash_table->table = table;
             hash_table->size = new_size;
+            clock_t end_resize = clock();
+            time_spent_resize = (double)(end_resize - begin_resize) / CLOCKS_PER_SEC;
+            resize_counter++;
         }
+
         word_counter++;
         int flag = 0; //IF A WORD IS FOUND, THEN WE DONT NEED TO CREATE IT
         hashcode = hash(fl->word) % hash_table->size;
@@ -226,6 +236,9 @@ int main(int argc, char* argv[])
             }
         }
     }
+    clock_t end_total = clock();
+    time_spent_total = (double)(end_total - begin_total) / CLOCKS_PER_SEC;
+
     // HASHING DONE //
 
     // TESTING //
@@ -254,7 +267,9 @@ int main(int argc, char* argv[])
     printf("TABLE STATS\n");
     printf("Words read: %d\n", word_counter);
     printf("Hash table count: %d\n", hash_table->count);
-    printf("Hash table size: %d\n", hash_table->size);
+    printf("Hash table size: %d (resized %d times)\n", hash_table->size, resize_counter);
+    printf("Total duration: %5.4fs\n", time_spent_total);
+    printf("Duration of last resize: %5.4fs\n", time_spent_resize);
     printf("Words inside table: %d\n", new_words);
 
 
